@@ -1,10 +1,13 @@
 package com.security.CookieBasedAuth.services;
 
 import com.security.CookieBasedAuth.entity.RefreshToken;
+import com.security.CookieBasedAuth.entity.User;
 import com.security.CookieBasedAuth.repository.RefreshTokenRepository;
 import com.security.CookieBasedAuth.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -30,6 +33,25 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
+    @CachePut(value = "refreshed_updated_token" )
+    public RefreshToken createOrUpdateRefreshToken(String username) {
+        User user = userRepository.findByUsername(username);
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(user.getId());
+
+        if (refreshToken == null) {
+
+            refreshToken = RefreshToken.builder()
+                    .user(user)
+                    .token(UUID.randomUUID().toString())
+                    .expiryDate(Instant.now().plusMillis(3600000 * 3)) // Set expiry time to 1 hour from now
+                    .build();
+        } else {
+
+            refreshToken.setExpiryDate(Instant.now().plusMillis(3600000 * 3));
+        }
+
+        return refreshTokenRepository.save(refreshToken);
+    }
 
 
     public Optional<RefreshToken> findByToken(String token){

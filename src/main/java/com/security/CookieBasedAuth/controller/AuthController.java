@@ -1,5 +1,7 @@
 package com.security.CookieBasedAuth.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.CookieBasedAuth.dtos.JwtResponseDto;
 import com.security.CookieBasedAuth.dtos.LoginRequestDto;
 import com.security.CookieBasedAuth.dtos.RefreshTokenRequestDto;
 import com.security.CookieBasedAuth.dtos.SignupRequestDto;
@@ -7,6 +9,7 @@ import com.security.CookieBasedAuth.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,8 +34,8 @@ public class AuthController {
     public ResponseEntity<?> logIn(@RequestBody LoginRequestDto userLoginRequestDto, HttpServletResponse response) {
 
         return new ResponseEntity<>(userService.login(userLoginRequestDto,response), HttpStatus.OK);
-
     }
+
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequestDto refreshTokenDto) {
@@ -42,6 +45,8 @@ public class AuthController {
     }
 
 
+
+
     @PostMapping("/logOut")
     public ResponseEntity<?> logOut(HttpServletRequest httpServletRequest) {
 
@@ -49,6 +54,7 @@ public class AuthController {
 
     }
 
+    @Cacheable(value = "welcome")
     @GetMapping("/ping")
     public String test() {
         try {

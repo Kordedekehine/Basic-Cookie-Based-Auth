@@ -90,7 +90,9 @@ public class UserServiceImpl implements UserService{
         if(authentication.isAuthenticated()){
 
             String accessToken = jwtService.GenerateToken(loginRequestDto.getUsernameOrMail());
-            RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequestDto.getUsernameOrMail());
+          //  RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequestDto.getUsernameOrMail());
+            RefreshToken refreshToken = refreshTokenService.createOrUpdateRefreshToken(loginRequestDto.getUsernameOrMail());
+
 
             ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
 
